@@ -22,5 +22,5 @@ if [ "$BASE_PATH" != "/" ]; then
   echo "Custom base path: $BASE_PATH"
 fi
 
-pnpm run build
-pnpm run preview
+bun run build
+bun run preview

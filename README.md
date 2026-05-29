@@ -154,7 +154,7 @@ cd meilisearch-ui
 3.install dependencies
 
 ```sh
-pnpm install
+bun install
 ```
 
 4.create `.env.local` file at root dir of repo, add the following configuration:
@@ -178,7 +178,7 @@ VITE_SINGLETON_API_KEY=your-api-key
 5.Build the app
 
 ```sh
-pnpm build
+bun run build
 ```
 
 Once the build is complete, you will find the `dist` directory in the root directory, which is a packaged SPA application directory that can be deployed to any server.
@@ -186,7 +186,7 @@ Once the build is complete, you will find the `dist` directory in the root direc
 You can preview the packaged singleton mode application locally using the following command:
 
 ```sh
-pnpm dlx serve dist
+bunx serve dist
 ```
 
 Regardless of which method you use, when you open the app, you will be directly redirected to the instance page.
@@ -210,16 +210,16 @@ If you have no special requirements, you do not need to set this variable.
 ## Development
 
 > [!NOTE]
-> Install [pnpm](https://pnpm.io/installation) first.
+> Install [Bun](https://bun.sh/docs/installation) first.
 
 ```sh
 git clone git@github.com:eyeix/meilisearch-ui.git
 
 cd meilisearch-ui
 
-pnpm install
+bun install
 
-pnpm dev
+bun run dev
 ```
 
 ## Built with ♥

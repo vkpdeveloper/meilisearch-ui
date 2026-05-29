@@ -1,12 +1,13 @@
 {
 	"name": "meilisearch-ui",
 	"private": true,
+	"packageManager": "bun@1.3.11",
 	"type": "module",
 	"scripts": {
 		"dev": "vite",
 		"start": "vite",
-		"build": "vite build && node scripts/post-build.js",
-		"build:safe": "tsc && vite build && node scripts/post-build.js",
+		"build": "vite build && bun scripts/post-build.js",
+		"build:safe": "tsc && vite build && bun scripts/post-build.js",
 		"build:docker": "vite build",
 		"preview": "vite preview",
 		"lint": "biome lint"

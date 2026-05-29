@@ -153,7 +153,7 @@ cd meilisearch-ui
 3.安装依赖：
 
 ```sh
-pnpm install
+bun install
 ```
 
 4.在仓库根目录创建 `.env.local` 文件，添加以下配置：
@@ -177,7 +177,7 @@ VITE_SINGLETON_API_KEY=your-api-key
 5.构建应用：
 
 ```sh
-pnpm build
+bun run build
 ```
 
 构建完成后，你将在根目录找到 `dist` 目录，这是一个打包后的SPA应用目录，可以将其部署到任何服务器上。
@@ -185,7 +185,7 @@ pnpm build
 你可以使用以下命令在本地预览打包后的单实例应用：
 
 ```sh
-pnpm dlx serve dist
+bunx serve dist
 ```
 
 无论使用哪种方式，当你打开应用时，都会直接跳转到实例页面。
@@ -209,16 +209,16 @@ ALLOWED_HOSTS=demo.ddev.site,another.domain.com
 ## 开发
 
 > [!NOTE]
-> 先安装 [pnpm](https://pnpm.io/installation).
+> 先安装 [Bun](https://bun.sh/docs/installation).
 
 ```sh
 git clone git@github.com:eyeix/meilisearch-ui.git
 
 cd meilisearch-ui
 
-pnpm install
+bun install
 
-pnpm dev
+bun run dev
 ```
 
 ## 共同构建 ♥

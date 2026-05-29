@@ -20,7 +20,7 @@ The application is designed as a Single Page Application (SPA) that stores insta
 - **React** v18.3.1 - UI library
 - **TypeScript** 5.8.2 - Type safety and development experience
 - **Vite** 6.2.1 - Build tool and development server
-- **pnpm** - Package manager
+- **Bun** - Package manager
 
 ### Routing & State Management
 

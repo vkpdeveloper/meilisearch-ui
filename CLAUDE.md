@@ -9,11 +9,11 @@ Meilisearch-UI is a React-based admin dashboard for managing Meilisearch search 
 ## Development Commands
 
 ```bash
-pnpm dev          # Start dev server (port 24900)
-pnpm build        # Production build with post-processing
-pnpm build:safe   # TypeScript check + build
-pnpm lint         # Run Biome linter
-pnpm preview      # Preview production build
+bun run dev          # Start dev server (port 24900)
+bun run build        # Production build with post-processing
+bun run build:safe   # TypeScript check + build
+bun run lint         # Run Biome linter
+bun run preview      # Preview production build
 ```
 
 **Note:** No test framework is configured.
