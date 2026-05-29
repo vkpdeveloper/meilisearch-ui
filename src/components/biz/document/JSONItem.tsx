@@ -3,6 +3,23 @@ import { useTranslation } from "react-i18next";
 import ReactJson from "react-json-view";
 import type { BaseDocItemProps } from "./List";
 
+const writeClipboardText = async (text: string) => {
+	if (navigator.clipboard?.writeText) {
+		await navigator.clipboard.writeText(text);
+		return;
+	}
+
+	const textarea = document.createElement("textarea");
+	textarea.value = text;
+	textarea.setAttribute("readonly", "");
+	textarea.style.position = "fixed";
+	textarea.style.left = "-9999px";
+	document.body.appendChild(textarea);
+	textarea.select();
+	document.execCommand("copy");
+	document.body.removeChild(textarea);
+};
+
 const getCopyText = (text: string) => {
 	const selection = text.trim();
 
@@ -22,6 +39,18 @@ const getCopyText = (text: string) => {
 	}
 
 	return text;
+};
+
+const getReactJsonCopyText = (value: unknown) => {
+	if (typeof value === "string") {
+		return value;
+	}
+
+	if (typeof value === "function" || value instanceof RegExp) {
+		return value.toString();
+	}
+
+	return JSON.stringify(value, null, 2);
 };
 
 export const JSONItem = ({
@@ -54,6 +83,9 @@ export const JSONItem = ({
 				src={doc.content}
 				collapsed={3}
 				collapseStringsAfterLength={50}
+				enableClipboard={({ src }) => {
+					void writeClipboardText(getReactJsonCopyText(src));
+				}}
 			/>
 			<div
 				className={
