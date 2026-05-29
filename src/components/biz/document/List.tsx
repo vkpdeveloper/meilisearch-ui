@@ -11,6 +11,7 @@ import { Table } from "@douyinfe/semi-ui";
 import { Button } from "@arco-design/web-react";
 import { Image, Radio, RadioGroup, Modal } from "@douyinfe/semi-ui";
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { useVirtualizer } from "@tanstack/react-virtual";
 import _ from "lodash";
 import type { Index } from "meilisearch";
 import { useCallback, useMemo, useState, useRef, useEffect } from "react";
@@ -214,6 +215,15 @@ const convertToSortOrder = (
 	return sortState.direction === "asc" ? "ascend" : "descend";
 };
 
+const getDocumentKey = (doc: Doc, index: number) => {
+	const primaryValue = doc.primaryKey ? doc.content[doc.primaryKey] : undefined;
+	if (typeof primaryValue === "string" || typeof primaryValue === "number") {
+		return `${doc.indexId}-${primaryValue}`;
+	}
+
+	return `${doc.indexId}-${index}`;
+};
+
 export const DocumentList = ({
 	docs = [],
 	type = "json",
@@ -229,7 +239,10 @@ export const DocumentList = ({
 		useState<boolean>(false);
 	const currentInstance = useCurrentInstance();
 	const tableContainerRef = useRef<HTMLDivElement>(null);
+	const [virtualContainerEl, setVirtualContainerEl] =
+		useState<HTMLDivElement | null>(null);
 	const [tableScrollY, setTableScrollY] = useState(475); // default fallback
+	const [virtualContainerWidth, setVirtualContainerWidth] = useState(0);
 
 	const indexSettingsQuery = useQuery({
 		queryKey: ["indexSettings", currentInstance.host, currentIndex.uid],
@@ -349,6 +362,36 @@ export const DocumentList = ({
 			updateTableScrollY();
 		}
 	}, [type, updateTableScrollY]);
+
+	useEffect(() => {
+		if (!virtualContainerEl) return;
+
+		const resizeObserver = new ResizeObserver(([entry]) => {
+			setVirtualContainerWidth(entry.contentRect.width);
+		});
+		resizeObserver.observe(virtualContainerEl);
+		setVirtualContainerWidth(virtualContainerEl.clientWidth);
+
+		return () => resizeObserver.disconnect();
+	}, [virtualContainerEl]);
+
+	const gridColumnCount = virtualContainerWidth >= 1024 ? 4 : 3;
+	const gridRowCount = Math.ceil(docs.length / gridColumnCount);
+
+	const jsonVirtualizer = useVirtualizer({
+		count: type === "json" ? docs.length : 0,
+		getScrollElement: () => virtualContainerEl,
+		estimateSize: () => 220,
+		overscan: 6,
+		getItemKey: (index) => getDocumentKey(docs[index], index),
+	});
+
+	const gridVirtualizer = useVirtualizer({
+		count: type === "grid" ? gridRowCount : 0,
+		getScrollElement: () => virtualContainerEl,
+		estimateSize: () => 280,
+		overscan: 4,
+	});
 
 	return useMemo(
 		() => (
@@ -490,32 +533,74 @@ export const DocumentList = ({
 						</div>
 					</>
 				) : type === "grid" ? (
-					<div className="grid grid-cols-3 laptop:grid-cols-4 gap-3">
-						{docs.map((d, i) => {
-							return (
-								<GridItem
-									doc={d}
-									key={i}
-									indexSettings={indexSettings}
-									onClickDocumentDel={onClickDocumentDel}
-									onClickDocumentUpdate={onClickDocumentUpdate}
-								/>
-							);
-						})}
+					<div
+						ref={setVirtualContainerEl}
+						className="h-full min-h-0 overflow-auto"
+					>
+						<div
+							className="relative w-full"
+							style={{ height: `${gridVirtualizer.getTotalSize()}px` }}
+						>
+							{gridVirtualizer.getVirtualItems().map((virtualRow) => {
+								const start = virtualRow.index * gridColumnCount;
+								const rowDocs = docs.slice(start, start + gridColumnCount);
+
+								return (
+									<div
+										key={virtualRow.key}
+										data-index={virtualRow.index}
+										ref={gridVirtualizer.measureElement}
+										className="absolute left-0 top-0 grid w-full grid-cols-3 gap-3 pb-3 laptop:grid-cols-4"
+										style={{
+											transform: `translateY(${virtualRow.start}px)`,
+										}}
+									>
+										{rowDocs.map((doc, index) => (
+											<GridItem
+												doc={doc}
+												key={getDocumentKey(doc, start + index)}
+												indexSettings={indexSettings}
+												onClickDocumentDel={onClickDocumentDel}
+												onClickDocumentUpdate={onClickDocumentUpdate}
+											/>
+										))}
+									</div>
+								);
+							})}
+						</div>
 					</div>
 				) : (
-					<>
-						{docs.map((d, i) => {
-							return (
-								<JSONItem
-									doc={d}
-									key={i}
-									onClickDocumentDel={onClickDocumentDel}
-									onClickDocumentUpdate={onClickDocumentUpdate}
-								/>
-							);
-						})}
-					</>
+					<div
+						ref={setVirtualContainerEl}
+						className="h-full min-h-0 overflow-auto"
+					>
+						<div
+							className="relative w-full"
+							style={{ height: `${jsonVirtualizer.getTotalSize()}px` }}
+						>
+							{jsonVirtualizer.getVirtualItems().map((virtualItem) => {
+								const doc = docs[virtualItem.index];
+
+								return (
+									<div
+										key={virtualItem.key}
+										data-index={virtualItem.index}
+										ref={jsonVirtualizer.measureElement}
+										className="absolute left-0 top-0 w-full pb-4"
+										style={{
+											transform: `translateY(${virtualItem.start}px)`,
+										}}
+									>
+										<JSONItem
+											doc={doc}
+											onClickDocumentDel={onClickDocumentDel}
+											onClickDocumentUpdate={onClickDocumentUpdate}
+										/>
+									</div>
+								);
+							})}
+						</div>
+					</div>
 				)}
 			</>
 		),
@@ -532,6 +617,9 @@ export const DocumentList = ({
 			t,
 			type,
 			tableScrollY,
+			gridColumnCount,
+			gridVirtualizer,
+			jsonVirtualizer,
 			sortState,
 			sort,
 			onSortChange,

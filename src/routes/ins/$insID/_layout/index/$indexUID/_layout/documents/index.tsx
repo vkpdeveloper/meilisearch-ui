@@ -55,7 +55,7 @@ export const Page = () => {
 		},
 		validate: {
 			limit: (value: number) => {
-				return value < 500 ? null : t("search.form.limit.validation_error");
+				return value <= 1200 ? null : t("search.form.limit.validation_error");
 			},
 			hybridEmbedder: (value: string, values) => {
 				return values.enableHybrid

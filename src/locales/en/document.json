@@ -10,7 +10,7 @@
 		"form": {
 			"limit": {
 				"label": "Limit",
-				"validation_error": "limit search value allow (<500) in this ui console for performance"
+				"validation_error": "limit search value allow (<=1200) in this ui console for performance"
 			},
 			"indexId": {
 				"placeholder": "input target index id"

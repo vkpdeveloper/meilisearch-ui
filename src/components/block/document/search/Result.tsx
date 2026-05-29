@@ -85,10 +85,9 @@ export const Result: FC<Props> = ({
 			{/* Doc List */}
 			<div
 				className={cn(
-					listType !== "table" && "flex flex-col gap-4",
 					listType === "table"
 						? "overflow-hidden h-full flex flex-col"
-						: "overflow-scroll",
+						: "overflow-hidden min-h-0",
 					"flex-1",
 				)}
 			>
